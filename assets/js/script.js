@@ -8,117 +8,185 @@ var nextWeatherElem = $("#fiveDaysWeatherContainerId");
 const APIKey = "44efa20749c98308accb83f12256fd4d";
 
 
-class WeatherInfo{
-    constructor(city, coord, date, temp, humidity, wind, symbol){
-    this.city = city;
-    this.coord = coord;
-    this.date = date;
-    this.temperature = temp;
-    this.humidity = humidity;
-    this.wind = wind;
-    this.symbol = symbol;
+class WeatherInfo {
+    constructor(city, coord, date, temp, humidity, wind, symbol) {
+        this.city = city;
+        this.coord = coord;
+        this.date = date;
+        this.temperature = temp;
+        this.humidity = humidity;
+        this.wind = wind;
+        this.symbol = symbol;
     }
 }
 
 init();
 
-function init(){
-    searchBtnElem.on("click", function(){
+function init() {
+    retrieveFavCities();
+    searchBtnElem.on("click", function () {
         handleSearchAction($(this));
     });
 }
 
-function handleSearchAction(SearchButton){
+function handleSearchAction(SearchButton) {
     var inputCityName = inputCityElem.val();
-   
-    getWeatherInfo(inputCityName);
+
+    displayWeatherInfo(inputCityName);
+    saveCityAsFav(inputCityName);
 }
 
-function getWeatherInfo(city){
+function saveCityAsFav(cityName){
+    if(localStorage.getItem("FAV") == null){
+        localStorage.setItem("FAV", cityName);       
+    }else{
+        var favCityList = localStorage.getItem("FAV") ;
+       if(!favCityList.includes(cityName)){
+        localStorage.setItem("FAV", favCityList + "," + cityName);        
+       }
+        
+    }   
+
+    retrieveFavCities();
+}
+
+
+function retrieveFavCities(){
+    if(localStorage.getItem("FAV") ==null){
+        return;
+    } 
+
+   $("#FavListId").remove();
+
+    var favList = localStorage.getItem("FAV").split(",");
+
+    var favListContainer = $("<div>");
+    favListContainer.attr("id", "FavListId")
+    favListContainer.addClass("weatherCard");
+
+    for(var i =0; i< favList.length; i++){
+        var ButtonElem = $("<button>");
+        ButtonElem.text(favList[i]);
+        ButtonElem.on("click", function () {
+            console.log("add Evenet Listener");
+            console.log($(this));
+            inputCityElem.val($(this).text());
+            handleSearchAction($(this));
+        });
+
+        favListContainer.append(ButtonElem);
+    }
+
+    $("aside").append(favListContainer);
+}
+
+function displayWeatherInfo(city) {
 
     var queryURL = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + APIKey;
-   
+
     fetch(queryURL)
-    .then(function(response){
+        .then(function (response) {
             return response.json();
         })
-    .then(function(data){
+        .then(function (data) {
 
-        var weatherInfo = new WeatherInfo(
-            city, 
-            data["coord"],
-            data["dt"], 
-            data["main"]["temp"],
-            data["main"]["humidity"],
-            data["wind"]["speed"],
-            data["weather"][0]["icon"] );
+            var weatherInfo = new WeatherInfo(
+                city,
+                data["coord"],
+                data["dt"],
+                data["main"]["temp"],
+                data["main"]["humidity"],
+                data["wind"]["speed"],
+                data["weather"][0]["icon"]);
 
-        var fiveDaysWeatherList = get5daysWeather(weatherInfo);
-        displayCurrentWeather(weatherInfo);
-        displayFiveDaysWeather(fiveDaysWeatherList);
-               
-    });
+            displayCurrentWeather(weatherInfo);
+            display5daysForcasting(weatherInfo);
 
-    function get5daysWeather(weatherInfo){
-        let fiveDaysWeatherList = [];
-        var lon = weatherInfo.coord["lon"];
-        var lat =  weatherInfo.coord["lat"];
-        var reqURL = "http://api.openweathermap.org/data/2.5/forecast?lat=" + lat + "&lon=" + lon + "&appid=" + APIKey + "&cnt=5"
 
-        fetch(reqURL)
+        });
+}
+
+function display5daysForcasting(weatherInfo) {
+    console.log("inside get 5 days weather");
+    var lon = weatherInfo.coord["lon"];
+    var lat = weatherInfo.coord["lat"];
+
+    var reqURL = "http://api.openweathermap.org/data/2.5/forecast/?lat=" + lat + "&lon=" + lon + "&appid=" + APIKey;
+    fetch(reqURL)
         .then(function (response) {
-          return response.json();
+            return response.json();
         })
         .then(function (data) {
-            
-          for (var i = 0; i < data["list"].length; i++) {
-            let nextWeather = new WeatherInfo(weatherInfo.city, weatherInfo.coord, 
-                data["list"][i]["dt"],
-                data["list"][i]["main"]["temp"],
-                data["list"][i]["main"]["humidity"],
-                data["list"][i]["wind"]["speed"],
-                data["list"][i]["weather"][0]["icon"]
-                );
-            fiveDaysWeatherList.push(nextWeather);
+            nextWeatherElem.empty();
+            console.log(data);
+            for (var i = 7; i < data["list"].length; i += 8) {
+               
 
-          }
+                console.log("for each weather");
+                //create container div
+                var weatherCard = $("<div>");
+                weatherCard.addClass("weatherCard");
+
+                var dateElem = $("<h7>");
+                var date = new Date(data["list"][i]["dt"] * 1000);
+                dateElem.text(date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear());
+                weatherCard.append(dateElem);
+
+                var tempElem = $("<h7>");
+                var temp = data["list"][i]["main"]["temp"];
+                tempElem.text("Temperature: " + temp + " F");
+                weatherCard.append(tempElem);
+
+
+                var humidityElem = $("<h7>");
+                var humidity = data["list"][i]["main"]["humidity"];
+                humidityElem.text("Humidity: " + humidity + " MDF");
+                weatherCard.append(humidityElem);
+
+
+                var windElem = $("<h7>");
+                var wind = data["list"][i]["wind"]["speed"];
+                windElem.text("Wind: " + wind + " %");
+                weatherCard.append(windElem);
+
+                console.log(weatherCard);
+
+                nextWeatherElem.append(weatherCard);
+
+            }
         });
-         return fiveDaysWeatherList;
 
-    }
 
-    function displayCurrentWeather(weatherInfo){
 
-        console.log(weatherInfo);
 
-        //create Element for the city name and the date
-        currentWeatherElem.children("h1").text(weatherInfo.city + " ( " + new Date(weatherInfo.date * 1000) + " )");
-        
-        var tempElem = $("<h4>");
-        tempElem.text("Temp: " + weatherInfo.temperature + " F");
-        currentWeatherElem.append(tempElem);
-
-        var humidityElem = $("<h4>");
-        humidityElem.text("Humidty: " + weatherInfo.humidity + " MPH");
-        currentWeatherElem.append(humidityElem);
-
-        var windElem = $("<h4>");
-        windElem.text("Temp: " + weatherInfo.wind + " %");
-        currentWeatherElem.append(windElem);
-    }
-
-    function displayFiveDaysWeather(fiveDaysWeatherList){
-        console.log("inside the display five function")
-
-        // var weatherArr = JSON.parse(fiveDaysWeatherList);
-        // for(var i = 0; i<weatherArr.length; i++){
-        //     console.log(weatherArr[i]);
-        // }
-
-        fiveDaysWeatherList.forEach(element => {
-
-            
-        });
-    }
-    
 }
+
+function displayCurrentWeather(weatherInfo) {
+
+    console.log(weatherInfo);
+    currentWeatherElem.empty();
+
+    var weatherCard = $("<div>");
+    weatherCard.addClass("weatherCard");
+
+    //create Element for the city name and the date
+    var date = new Date(weatherInfo.date * 1000);
+    var dateElem = $("<h4>");
+    dateElem.text(weatherInfo.city + " ( " + date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() + " )");
+    weatherCard.append(dateElem);
+
+    var tempElem = $("<h5>");
+    tempElem.text("Temp: " + weatherInfo.temperature + " F");
+    weatherCard.append(tempElem);
+
+    var humidityElem = $("<h5>");
+    humidityElem.text("Humidty: " + weatherInfo.humidity + " MPH");
+    weatherCard.append(humidityElem);
+
+    var windElem = $("<h5>");
+    windElem.text("Temp: " + weatherInfo.wind + " %");
+    weatherCard.append(windElem);
+
+    currentWeatherElem.append(weatherCard);
+}
+
