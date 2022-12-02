@@ -1,0 +1,42 @@
+main{
+    display: flex;
+    flex-direction: row;
+
+    padding: 10px;
+    margin: 10px;
+}
+
+aside{
+    flex : 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    margin: 10px;
+}
+
+#mainContainerId{
+    flex: 4;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    margin: 10px;
+}
+#currentWeatherContainerId{
+    display: flex;
+    flex-direction: column;
+    
+}
+#fiveDaysWeatherContainerId{
+    display: flex;
+    flex-direction: row;
+    
+    
+    padding: 10px;
+    margin: 10px;
+}
+#cityContainerId{
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    margin: 10px;
+}
