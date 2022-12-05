@@ -2,24 +2,24 @@ main{
     display: flex;
     flex-direction: row;
 
-    padding: 10px;
-    margin: 10px;
+    padding: 5px;
+    margin: 5px;
 }
 
 aside{
     flex : 1;
     display: flex;
     flex-direction: column;
-    padding: 10px;
-    margin: 10px;
+    padding: 5px;
+    margin: 5px;
 }
 
 #mainContainerId{
     flex: 4;
     display: flex;
     flex-direction: column;
-    padding: 10px;
-    margin: 10px;
+    padding: 5px;
+    margin: 5px;
 }
 /* 
 #currentWeatherContainerId{
@@ -38,24 +38,36 @@ aside{
     flex-direction: row;
     flex-wrap: wrap;
     
-    padding: 10px;
-    margin: 10px;
+    padding: 5px;
+    margin: 5px;
 }
 #cityContainerId{
     display: flex;
     flex-direction: column;
-    padding: 10px;
-    margin: 10px;
+    padding: 5px;
+    margin: 5px;
 }
 
 .weatherCard{
     display: flex;
     flex-direction: column;
     
-    border: 5px;
+    border: 2px;
     border-style: outset;
     border-radius: 10px;
 
-    padding: 10px;
-    margin: 10px;
+    padding: 5px;
+    margin: 5px;
+}
+
+header{
+    background-color: lightgray;
+    justify-content: center;
+    text-align: center;
+}
+
+button{
+    
+    padding: 2px;
+    margin: 2px;
 }
