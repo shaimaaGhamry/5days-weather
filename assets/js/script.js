@@ -83,7 +83,7 @@ function retrieveFavCities(){
 
 function displayWeatherInfo(city) {
     
-    var queryURL = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=${APIKey}`;
+    var queryURL = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=${APIKey}`;
     
     fetch(queryURL)
         .then(function (response) {
@@ -111,7 +111,7 @@ function display5daysForcasting(cityInfo) {
     var lon = cityInfo.lon;
     var lat = cityInfo.lat;
 
-    var reqURL = "http://api.openweathermap.org/data/2.5/forecast/?lat=" + lat + "&lon=" + lon + "&appid=" + APIKey;
+    var reqURL = "https://api.openweathermap.org/data/2.5/forecast/?lat=" + lat + "&lon=" + lon + "&appid=" + APIKey;
     
     fetch(reqURL)
         .then(function (response) {
