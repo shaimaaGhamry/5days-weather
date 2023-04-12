@@ -1,3 +1,14 @@
+h6 {
+    background-color: purple;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+
 main{
     display: flex;
     flex-direction: row;
@@ -71,3 +82,28 @@ button{
     padding: 2px;
     margin: 2px;
 }
+
+/* button style */
+#searchBtnId {
+    background-color: #4CAF50; /* Green background */
+    border: none; /* Remove borders */
+    border-radius: 5px;
+    
+    color: white; /* White text */
+    padding: 12px 24px; /* Some padding */
+    font-size: 16px; /* Set a font size */
+    cursor: pointer; /* Mouse pointer on hover */
+  }
+  
+  /* button hover effect */
+  #searchBtnId:hover {
+    background-color: #3e8e41; /* Darker green */
+  }
+  
+  /* button active effect */
+  #searchBtnId:active {
+    background-color: #3e8e41; /* Darker green */
+    box-shadow: 0 5px #666; /* Add a shadow on click */
+    transform: translateY(4px); /* Move down on click */
+  }
+  

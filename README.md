@@ -24,7 +24,7 @@ After user determines the city to display its weather, the selected city will be
 ![screenshots](assets/screenshots/favCities.png)
 
 
-when the user select a city from the favorit list , then the weather will be displayed of that city
+when the user select a city from the favorit list , then the weather will be displayed of that city         
 
 
 

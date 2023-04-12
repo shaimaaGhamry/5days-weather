@@ -34,6 +34,7 @@ function handleSearchAction(SearchButton) {
 
     displayWeatherInfo(inputCityName);
     saveCityAsFav(inputCityName);
+    inputCityElem.val("");
 }
 
 function saveCityAsFav(cityName){
@@ -64,7 +65,7 @@ function retrieveFavCities(){
     favListContainer.attr("id", "FavListId")
     favListContainer.addClass("weatherCard");
 
-    for(var i =0; i< favList.length; i++){
+        for(var i =0; i< favList.length; i++){
         var ButtonElem = $("<button>");
         ButtonElem.text(favList[i]);
         ButtonElem.on("click", function () {
@@ -81,37 +82,37 @@ function retrieveFavCities(){
 }
 
 function displayWeatherInfo(city) {
-
-    var queryURL = "http://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + APIKey;
-
+    
+    var queryURL = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=${APIKey}`;
+    
     fetch(queryURL)
         .then(function (response) {
             return response.json();
         })
         .then(function (data) {
 
-            var weatherInfo = new WeatherInfo(
-                city,
-                data["coord"],
-                data["dt"],
-                data["main"]["temp"],
-                data["main"]["humidity"],
-                data["wind"]["speed"],
-                data["weather"][0]["icon"]);
-
-            displayCurrentWeather(weatherInfo);
-            display5daysForcasting(weatherInfo);
+            var cityInfo= {
+                city: city,
+                lat:data[0].lat,
+                lon:data[0].lon
+            }
+            
+            
+            console.log(cityInfo);
+                
+            display5daysForcasting(cityInfo);
 
 
         });
 }
 
-function display5daysForcasting(weatherInfo) {
+function display5daysForcasting(cityInfo) {
     console.log("inside get 5 days weather");
-    var lon = weatherInfo.coord["lon"];
-    var lat = weatherInfo.coord["lat"];
+    var lon = cityInfo.lon;
+    var lat = cityInfo.lat;
 
     var reqURL = "http://api.openweathermap.org/data/2.5/forecast/?lat=" + lat + "&lon=" + lon + "&appid=" + APIKey;
+    
     fetch(reqURL)
         .then(function (response) {
             return response.json();
@@ -119,7 +120,20 @@ function display5daysForcasting(weatherInfo) {
         .then(function (data) {
             nextWeatherElem.empty();
             console.log(data);
-            for (var i = 7; i < data["list"].length; i += 8) {
+
+            //display the current weather
+            var weatherInfo = {
+                iconCode: data["list"][0]["weather"][0]["icon"],
+                city: data.city.name,
+                dt: data["list"][0]["dt"],
+                temp: data["list"][0]["main"]["temp"],
+                humidity: data["list"][0]["main"]["humidity"],
+                windSpeed: data["list"][0]["wind"]["speed"],
+                weatherIcon: data["list"][0]["weather"][0]["icon"]
+            };
+            displayCurrentWeather(weatherInfo);
+
+            for (var i = 9; i <data.list.length; i+=8) {
                
 
                 console.log("for each weather");
@@ -127,26 +141,38 @@ function display5daysForcasting(weatherInfo) {
                 var weatherCard = $("<div>");
                 weatherCard.addClass("weatherCard");
 
-                var dateElem = $("<h7>");
-                var date = new Date(data["list"][i]["dt"] * 1000);
+                var dateElem = $("<h6>");
+                var date = new Date(data["list"][i]["dt_txt"] );
                 dateElem.text(date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear());
                 weatherCard.append(dateElem);
 
+                var iconCode = data["list"][i]["weather"][0]["icon"];
+                console.log("ICON: "+ iconCode);
+                
+                var iconUrl = `https://openweathermap.org/img/wn/${iconCode}@4x.png`;
+                var weatherIcon = $("<img>").attr({
+                    src:iconUrl,
+                    width:"30px",
+                    height:"30px"
+        
+                });
+                weatherCard.append(weatherIcon);
+                
                 var tempElem = $("<h7>");
                 var temp = data["list"][i]["main"]["temp"];
-                tempElem.text("Temperature: " + temp + " F");
+                tempElem.text("Temperature: " + temp + " \u00B0 F");
                 weatherCard.append(tempElem);
 
 
                 var humidityElem = $("<h7>");
                 var humidity = data["list"][i]["main"]["humidity"];
-                humidityElem.text("Humidity: " + humidity + " MDF");
+                humidityElem.text("Humidity: " + humidity + " %");
                 weatherCard.append(humidityElem);
 
 
                 var windElem = $("<h7>");
                 var wind = data["list"][i]["wind"]["speed"];
-                windElem.text("Wind: " + wind + " %");
+                windElem.text("Wind: " + wind + " MPH");
                 weatherCard.append(windElem);
 
                 console.log(weatherCard);
@@ -170,21 +196,30 @@ function displayCurrentWeather(weatherInfo) {
     weatherCard.addClass("weatherCard");
 
     //create Element for the city name and the date
-    var date = new Date(weatherInfo.date * 1000);
-    var dateElem = $("<h4>");
+    var date = new Date(weatherInfo.dt * 1000);
+    var dateElem = $("<h6>");
     dateElem.text(weatherInfo.city + " ( " + date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() + " )");
     weatherCard.append(dateElem);
 
+    var iconUrl = `https://openweathermap.org/img/wn/${weatherInfo.iconCode}@4x.png`;
+    var weatherIcon = $("<img>").attr({
+        src:iconUrl,
+        width:"30px",
+        height:"30px"
+
+    });
+    weatherCard.append(weatherIcon);
+
     var tempElem = $("<h5>");
-    tempElem.text("Temp: " + weatherInfo.temperature + " F");
+    tempElem.text("Temp: " + weatherInfo.temp + " \u00B0F");
     weatherCard.append(tempElem);
 
     var humidityElem = $("<h5>");
-    humidityElem.text("Humidty: " + weatherInfo.humidity + " MPH");
+    humidityElem.text("Humidty: " + weatherInfo.humidity + " %");
     weatherCard.append(humidityElem);
 
     var windElem = $("<h5>");
-    windElem.text("Temp: " + weatherInfo.wind + " %");
+    windElem.text("Wind: " + weatherInfo.windSpeed + " MPH");
     weatherCard.append(windElem);
 
     currentWeatherElem.append(weatherCard);
